@@ -6,7 +6,7 @@
 #SBATCH --time=48:00:00 
 #SBATCH -A lp_svbelleghem
 #SBATCH -o map_radtags.%j.out
-#SBATCH --array=1-192
+#SBATCH --array=1-96
 
 cd /scratch/leuven/361/vsc36175/
 
