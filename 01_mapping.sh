@@ -98,19 +98,19 @@ echo "================="
 
 # Remove PCR duplicates
 java -Xmx4G -Djava.io.tmpdir=temp/ -jar $EBROOTPICARD/picard.jar MarkDuplicates \
--INPUT $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.bam \
--OUTPUT $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.nd.bam \
--REMOVE_DUPLICATES true \
--METRICS_FILE $BWAout/${samples[ID]}.$REFNAME.dup_metrics.txt \
--ASSUME_SORTED true
+  I=$BWAout/${samples[ID]}.$REFNAME.filtered.sorted.bam \
+  O=$BWAout/${samples[ID]}.$REFNAME.filtered.sorted.nd.bam \
+  REMOVE_DUPLICATES=true \
+  M=$BWAout/${samples[ID]}.$REFNAME.dup_metrics.txt \
+  ASSUME_SORTED=true
 
 echo "PCR duplicates removed"
 echo "================="
 
 # Remove intermediate files
 #rm $BWAout/${samples[ID]}.$REFNAME.bam
-#rm $BWAout/${samples[ID]}.$REFNAME.filtered.bam
-#rm $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.bam 
+rm $BWAout/${samples[ID]}.$REFNAME.filtered.bam
+rm $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.bam 
 
 echo "Intermediate files removed"
 echo "================="
