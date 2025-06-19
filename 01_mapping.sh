@@ -84,8 +84,8 @@ REFNAME=BarSW
 BWAout=/scratch/leuven/361/vsc36175/bams
 #FILE1=/scratch/leuven/361/vsc36175/Pogonus_RAD_Nieuwpoort_Sander_18062025/$(echo "${samples[ID]}")_L1_1.fq.gz
 #FILE2=/scratch/leuven/361/vsc36175/Pogonus_RAD_Nieuwpoort_Sander_18062025/$(echo "${samples[ID]}")_L1_2.fq.gz
-FILE1=/scratch/leuven/361/vsc36175/Pogonus_RAD_Nieuwpoort_Sander_18062025/${samples[$ID]}/${samples[$ID]})_L1_1.fq.gz
-FILE2=/scratch/leuven/361/vsc36175/Pogonus_RAD_Nieuwpoort_Sander_18062025/${samples[$ID]}/${samples[$ID]})_L1_2.fq.gz
+FILE1=/scratch/leuven/361/vsc36175/Pogonus_RAD_Nieuwpoort_Sander_18062025/${samples[$ID]}/${samples[$ID]}_L1_1.fq.gz
+FILE2=/scratch/leuven/361/vsc36175/Pogonus_RAD_Nieuwpoort_Sander_18062025/${samples[$ID]}/${samples[$ID]}_L1_2.fq.gz
 # Alternative, map with minimap2
 #minimapOUT=/scratch/leuven/361/vsc36175/bams-minimap
 #file1=/scratch/leuven/361/vsc36175/$(echo "${samples[ID]}")_R1.fastq.gz
