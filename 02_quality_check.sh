@@ -12,7 +12,7 @@ cd /scratch/leuven/361/vsc36175/bams
 
 module load SAMtools/1.9-GCC-6.4.0-2.28
 
-for bam in *.filtered.sorted.np.bam; do 
+for bam in *.filtered.sorted.bam; do 
     echo "$bam"; 
     samtools flagstat "$bam"; 
 done > mapping_stats.txt
@@ -32,7 +32,7 @@ done
 
 echo "Check complete. Files with errors are listed in: $ERROR_LOG"
 
-for bam in *.filtered.sorted.nd.bam; do 
+for bam in *.filtered.sorted.bam; do 
     echo -n "$(basename "$bam" .bam): "; 
     samtools depth -a "$bam" | awk '{sum+=$3} END {if (NR>0) print sum/NR; else print "No coverage"}'; 
 done > average_depths.txt
