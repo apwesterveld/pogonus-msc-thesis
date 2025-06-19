@@ -2,16 +2,19 @@
 #SBATCH --cluster=genius 
 #SBATCH --job-name bwa 
 #SBATCH --nodes=1 
-#SBATCH --ntasks-per-node=20 
-#SBATCH --time=48:00:00 
+#SBATCH --tasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --time=24:00:00 
 #SBATCH -A lp_svbelleghem
 #SBATCH -o map_radtags.%j.out
-#SBATCH --array=1-96
+
+# Submit multiple tasks as sbatch -a 1-96 script.sh
 
 cd /scratch/leuven/361/vsc36175/
 
 # This variable will store the job array number minus 1, so we can use it to get a sample from the samples list (index starts at 0)
 ID=$((SLURM_ARRAY_TASK_ID -1))
+
 
 # Load the programs we will use
 module load BWA/0.7.17-foss-2018a
