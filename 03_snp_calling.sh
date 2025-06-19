@@ -6,14 +6,8 @@
 #SBATCH --time=72:00:00 
 #SBATCH -A lp_svbelleghem
 #SBATCH -o call_snps.%j.out
-#SBATCH --array=1-11
 
-##########
-#shouldnt i created a new folder for all these vcf files?
-#########
-
-
-# Submit multiple tasks as sbatch -a 1-96 script.sh
+# Submit multiple tasks as: sbatch -a 1-96 script.sh
 
 # This variable will store the job array number minus 1, so we can use it to get a sample from the samples list (index  starts at 0)
 ID=$((SLURM_ARRAY_TASK_ID -1))
@@ -86,5 +80,5 @@ if [[ -z "$command" ]]; then
 fi
 
 # run mpileup
-bcftools mpileup -Oz --threads 20 -f $REF $(echo $command) -r $(echo "${chrom[ID]}") | \
-bcftools call -m -Oz -o /scratch/leuven/361/vsc36175/P_chalceus_NP25__$REFNAME.chr_$(echo "${names[ID]}").vcf.gz
+bcftools mpileup -Oz --threads 20 -f $REF $command -r ${chrom[ID]} | \
+bcftools call -m -Oz -o /scratch/leuven/361/vsc36175/P_chalceus_NP25__$REFNAME.chr_${names[ID]}".vcf.gz
