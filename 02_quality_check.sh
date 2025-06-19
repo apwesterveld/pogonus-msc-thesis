@@ -12,7 +12,7 @@ cd /scratch/leuven/361/vsc36175/bams
 
 module load SAMtools/1.9-GCC-6.4.0-2.28
 
-for bam in *.filtered.bam; do 
+for bam in *.filtered.sorted.np.bam; do 
     echo "$bam"; 
     samtools flagstat "$bam"; 
 done > mapping_stats.txt
