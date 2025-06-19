@@ -76,7 +76,7 @@ echo "================="
 mkdir -p $BWAout
 
 # Map reads using bwa mem
-#bwa mem -t 20 -M $REF $FILE1 $FILE2 | samtools view -bS - > $BWAout/${samples[ID]}.$REFNAME.bam
+bwa mem -t 20 -M $REF $FILE1 $FILE2 | samtools view -bS - > $BWAout/${samples[ID]}.$REFNAME.bam
 
 # Alternative, map with minimap2
 #minimap2 -ax sr -t 20 $REF $file1 $file2 | samtools view -bS - > $minimapOUT/$(echo "${samples[ID]}").$REFNAME.bam
@@ -108,7 +108,7 @@ echo "PCR duplicates removed"
 echo "================="
 
 # Remove intermediate files
-#rm $BWAout/${samples[ID]}.$REFNAME.bam
+rm $BWAout/${samples[ID]}.$REFNAME.bam
 rm $BWAout/${samples[ID]}.$REFNAME.filtered.bam
 rm $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.bam 
 
