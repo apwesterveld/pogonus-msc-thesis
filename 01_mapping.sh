@@ -19,6 +19,7 @@ ID=$((SLURM_ARRAY_TASK_ID -1))
 # Load the programs we will use
 module load BWA/0.7.17-foss-2018a
 module load SAMtools/1.18-GCC-12.3.0
+module load libdeflate/1.18-GCCcore-12.3.0 # should normally load within SAMtools, but that didn't work
 module load picard/2.18.23-Java-1.8.0_171
 #module load minimap2/2.26-GCCcore-12.3.0
 
@@ -75,9 +76,6 @@ S-169 S-170 S-171 S-172 S-173 S-174 S-175 S-176 \
 S-177 S-178 S-179 S-180 S-181 S-182 S-183 S-184 \
 S-185 S-186 S-187 S-188 S-189 S-190 S-191 S-192)
 
-#echo "${samples[ID]}"
-echo "sample ID: ${samples[$ID]}"
-
 # Some folder and file paths to use later
 REF=/scratch/leuven/361/vsc36175/reference_genome/P_chalceus.fasta
 REFNAME=BarSW
@@ -90,6 +88,11 @@ FILE2=/scratch/leuven/361/vsc36175/Pogonus_RAD_Nieuwpoort_Sander_18062025/${samp
 #minimapOUT=/scratch/leuven/361/vsc36175/bams-minimap
 #file1=/scratch/leuven/361/vsc36175/$(echo "${samples[ID]}")_R1.fastq.gz
 #file2=/scratch/leuven/361/vsc36175/$(echo "${samples[ID]}")_R2.fastq.gz
+
+echo "sample ID: ${samples[$ID]}"
+echo "file1 path: $FILE1"
+echo "file2 path: $FILE2"
+
 
 mkdir -p $BWAout
 
