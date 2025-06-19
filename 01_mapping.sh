@@ -76,7 +76,7 @@ echo "================="
 mkdir -p $BWAout
 
 # Map reads using bwa mem
-bwa mem -t 20 -M $REF $FILE1 $FILE2 | samtools view -bS - > $BWAout/${samples[ID]}.$REFNAME.bam
+#bwa mem -t 20 -M $REF $FILE1 $FILE2 | samtools view -bS - > $BWAout/${samples[ID]}.$REFNAME.bam
 
 # Alternative, map with minimap2
 #minimap2 -ax sr -t 20 $REF $file1 $file2 | samtools view -bS - > $minimapOUT/$(echo "${samples[ID]}").$REFNAME.bam
@@ -85,37 +85,37 @@ echo "mapping finished"
 echo "================="
 
 # Filter using samtools
-samtools view -f 0x02 -q 20 -b $BWAout/$(echo "${samples[ID]}").$REFNAME.bam > $BWAout/$(echo "${samples[ID]}").$REFNAME.filtered.bam
+samtools view -f 0x02 -q 20 -b $BWAout/${samples[ID]}.$REFNAME.bam > $BWAout/${samples[ID]}.$REFNAME.filtered.bam
 
 echo "filtering finished"
 echo "================="
 
 # Sort using samtools
-samtools sort $BWAout/$(echo "${samples[ID]}").$REFNAME.filtered.bam -o $BWAout/$(echo "${samples[ID]}").$REFNAME.filtered.sorted.bam
+samtools sort $BWAout/${samples[ID]}.$REFNAME.filtered.bam -o $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.bam
 
 echo "sorting finished"
 echo "================="
 
 # Remove PCR duplicates
 java -Xmx4G -Djava.io.tmpdir=temp/ -jar $EBROOTPICARD/picard.jar MarkDuplicates \
--INPUT $BWAout/$(echo "${samples[ID]}").$REFNAME.filtered.sorted.bam \
--OUTPUT $BWAout/$(echo "${samples[ID]}").$REFNAME.filtered.sorted.nd.bam \
+-INPUT $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.bam \
+-OUTPUT $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.nd.bam \
 -REMOVE_DUPLICATES true \
--METRICS_FILE $BWAout/$(echo "${samples[ID]}").$REFNAME.dup_metrics.txt \
+-METRICS_FILE $BWAout/${samples[ID]}.$REFNAME.dup_metrics.txt \
 -ASSUME_SORTED true
 
 echo "PCR duplicates removed"
 echo "================="
 
 # Remove intermediate files
-#rm $BWAout/$(echo "${samples[ID]}").$REFNAME.bam
-rm $BWAout/$(echo "${samples[ID]}").$REFNAME.filtered.bam
-rm $BWAout/$(echo "${samples[ID]}").$REFNAME.filtered.sorted.bam 
+#rm $BWAout/${samples[ID]}.$REFNAME.bam
+#rm $BWAout/${samples[ID]}.$REFNAME.filtered.bam
+#rm $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.bam 
 
 echo "Intermediate files removed"
 echo "================="
 
-samtools index $BWAout/$(echo "${samples[ID]}").$REFNAME.filtered.sorted.nd.bam
+samtools index $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.nd.bam
 
 echo "filtered and sorted bam indexing finished"
 echo "================="
