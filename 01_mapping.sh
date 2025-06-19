@@ -97,25 +97,26 @@ echo "sorting finished"
 echo "================="
 
 # Remove PCR duplicates
-java -Xmx4G -Djava.io.tmpdir=temp/ -jar $EBROOTPICARD/picard.jar MarkDuplicates \
-  I=$BWAout/${samples[ID]}.$REFNAME.filtered.sorted.bam \
-  O=$BWAout/${samples[ID]}.$REFNAME.filtered.sorted.nd.bam \
-  REMOVE_DUPLICATES=true \
-  M=$BWAout/${samples[ID]}.$REFNAME.dup_metrics.txt \
-  ASSUME_SORTED=true
+#java -Xmx4G -Djava.io.tmpdir=temp/ -jar $EBROOTPICARD/picard.jar MarkDuplicates \
+#  I=$BWAout/${samples[ID]}.$REFNAME.filtered.sorted.bam \
+#  O=$BWAout/${samples[ID]}.$REFNAME.filtered.sorted.nd.bam \
+#  REMOVE_DUPLICATES=true \
+#  M=$BWAout/${samples[ID]}.$REFNAME.dup_metrics.txt \
+#  ASSUME_SORTED=true
 
-echo "PCR duplicates removed"
-echo "================="
+#echo "PCR duplicates removed"
+#echo "================="
 
 # Remove intermediate files
 rm $BWAout/${samples[ID]}.$REFNAME.bam
 rm $BWAout/${samples[ID]}.$REFNAME.filtered.bam
-rm $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.bam 
+#rm $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.bam 
 
 echo "Intermediate files removed"
 echo "================="
 
-samtools index $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.nd.bam
+samtools index $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.bam
+#samtools index $BWAout/${samples[ID]}.$REFNAME.filtered.sorted.nd.bam
 
 echo "filtered and sorted bam indexing finished"
 echo "================="
