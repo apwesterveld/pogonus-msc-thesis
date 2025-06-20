@@ -11,6 +11,8 @@ source /data/leuven/361/vsc36175/miniconda3/etc/profile.d/conda.sh
 conda activate vcftools
 module load tabix/0.2.6-GCCcore-6.4.0
 
+cd /scratch/leuven/361/vsc36175/
+
 # Check missingness per individual
 vcftools --gzvcf P_chalceus_NP25_BarSW_merged.vcf.gz --missing-indv
 
