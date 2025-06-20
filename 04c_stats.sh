@@ -9,19 +9,20 @@
 
 module load BCFtools/1.9-foss-2018a
 
-source /data/leuven/361/vsc36175/miniconda3/etc/profile.d/conda.sh
+source /user/leuven/361/vsc36175/miniconda3/etc/profile.d/conda.sh
+#source /data/leuven/361/vsc36175/miniconda3/etc/profile.d/conda.sh
 conda activate vcftools
 
 cd /scratch/leuven/361/vsc36175/
 
 # Gives variant count, transition/transversion ratio, missing genotype rates, etc..
-bcftools stats P_chalceus_NP25_BarSW_merged.vcf.gz
+#bcftools stats P_chalceus_NP25_BarSW_merged.vcf.gz
 
 # Gives a brief summary of stats
-bcftools stats P_chalceus_NP25_BarSW_merged.vcf.gz | grep -E "SN|TSTV"
+#bcftools stats P_chalceus_NP25_BarSW_merged.vcf.gz | grep -E "SN|TSTV"
 
 # Counts the number of variants (excluding the header).
-bcftools view -H P_chalceus_NP25_BarSW_merged.vcf.gz | wc -l
+#bcftools view -H P_chalceus_NP25_BarSW_merged.vcf.gz | wc -l
 
 # Checks missingness
 vcftools --gzvcf P_chalceus_NP25_BarSW_merged.vcf.gz --missing-indv
