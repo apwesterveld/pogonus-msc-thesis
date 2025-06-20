@@ -3,7 +3,7 @@
 #SBATCH --job-name snps 
 #SBATCH --nodes=1 
 #SBATCH --cpus-per-task=20
-#SBATCH --time=72:00:00 
+#SBATCH --time=24:00:00 
 #SBATCH -A lp_svbelleghem
 #SBATCH -o call_snps.%j.out
 
