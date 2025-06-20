@@ -13,7 +13,7 @@
 ID=$((SLURM_ARRAY_TASK_ID -1))
 
 # Load the programs we will use
-#module load BCFtools/1.9-foss-2018a
+module load BCFtools/1.9-foss-2018a
 module load Python/3.7.0-foss-2018a
 export BCFTOOLS_PLUGINS=/data/leuven/361/vsc36175/bcftools/plugins
 
@@ -59,7 +59,7 @@ cd /scratch/leuven/361/vsc36175/bams
 ALL_LIST=""
 for FILE in ${samples[*]}
 do
-ALL_LIST="$ALL_LIST $FILE".$REFNAME.filtered.sorted.nd.bam""
+ALL_LIST="$ALL_LIST $FILE".$REFNAME.filtered.sorted.bam""
 done
 eval command=\$$(echo ALL_LIST)
 
