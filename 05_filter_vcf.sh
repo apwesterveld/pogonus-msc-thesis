@@ -7,6 +7,7 @@
 #SBATCH -A lp_svbelleghem
 #SBATCH -o filter_vcf.%j.out
 
+# 20250620 VCFtools (0.1.16)
 source /user/leuven/361/vsc36175/miniconda3/etc/profile.d/conda.sh
 conda activate vcftools
 module load tabix/0.2.6-GCCcore-6.4.0
