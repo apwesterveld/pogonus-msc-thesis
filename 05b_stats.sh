@@ -13,16 +13,16 @@ source /data/leuven/361/vsc36175/miniconda3/etc/profile.d/conda.sh
 conda activate vcftools
 
 # Gives variant count, transition/transversion ratio, missing genotype rates, etc..
-bcftools stats P_chalceus_NP25_BarSW_merged_filtered.vcf.gz
+bcftools stats P_chalceus_NP25_BarSW_merged_filtered_multiSplit.vcf.gz
 
 # Gives a brief summary of stats
-bcftools stats P_chalceus_NP25_BarSW_merged_filtered.vcf.gz | grep -E "SN|TSTV"
+bcftools stats P_chalceus_NP25_BarSW_merged_filtered_multiSplit.vcf.gz | grep -E "SN|TSTV"
 
 # Counts the number of variants (excluding the header).
-bcftools view -H P_chalceus_NP25_BarSW_merged_filtered.vcf.gz | wc -l
+bcftools view -H P_chalceus_NP25_BarSW_merged_filtered_multiSplit.vcf.gz | wc -l
 
 # Checks missingness
-vcftools --gzvcf P_chalceus_NP25_BarSW_merged_filtered.vcf.gz --missing-indv
+vcftools --gzvcf P_chalceus_NP25_BarSW_merged_filtered_multiSplit.vcf.gz --missing-indv
 
 # Checks allele frequency distribution 
-vcftools --gzvcf P_chalceus_NP25_BarSW_merged_filtered.vcf.gz --freq
+vcftools --gzvcf P_chalceus_NP25_BarSW_merged_filtered_multiSplit.vcf.gz --freq
