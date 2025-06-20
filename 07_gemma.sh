@@ -2,25 +2,27 @@
 #SBATCH --cluster=genius 
 #SBATCH --job-name gwas 
 #SBATCH --nodes=1 
-#SBATCH --ntasks-per-node=20
-#SBATCH --time=72:00:00 
+#SBATCH --cpus-per-task=20
+#SBATCH --time=24:00:00 
 #SBATCH -A lp_svbelleghem
 #SBATCH -o gwas.%j.out
 
-module load Python/3.7.0-foss-2018a
-export BCFTOOLS_PLUGINS=/data/leuven/357/vsc35707/bcftools/plugins
+module load BCFtools/1.9-foss-2018a
 
-# Remove the samples that don't have a wing measurement (not found in the phenotype.txt file) 
-bcftools view --threads 20 --samples-file ^remove_samples.txt gwas_imputed.vcf.gz -Oz -o gwas_imputed_clean.vcf.gz
+# Remove the samples that don't have a wing measurement (not found in the phenotype.txt file)
+# Shouldn't be the case with NP25
+#bcftools view --threads 20 --samples-file ^remove_samples.txt gwas_imputed.vcf.gz -Oz -o gwas_imputed_clean.vcf.gz
 
-bcftools index -t gwas_imputed_clean.vcf.gz
+bcftools index -t P_chalceus_NP25_BarSW_merged_filtered.vcf.gz
 
-bcftools query -l gwas_imputed_clean.vcf.gz | wc -l
-# total of 237 samples (some were removed due to not having a phenotype measurement)
+# Checks the number of samples
+bcftools query -l P_chalceus_NP25_BarSW_merged_filtered.vcf.gz | wc -l
 
+# Prepare the GWAS with PLINK
+# Phenotype file should have the same FID and IID columns, and sample order should be same in vcf file 
 module load PLINK/1.9
-plink --vcf gwas_imputed_clean.vcf.gz --pheno phenotype_final.txt --allow-no-sex --pheno-name wingsize --double-id --make-bed --allow-extra-chr --out gwas_input
-# fixed the phenotype file so that the FID and IID columns are the same, and that it is in the same order as the samples in the vcf file 
+plink --vcf P_chalceus_NP25_BarSW_merged_filtered.vcf.gz --pheno phenotype.txt --allow-no-sex --pheno-name relMRWS \
+--double-id --make-bed --allow-extra-chr --out gwas_input
 
 # To confirm that the .bed file is properly formatted
 plink --bfile gwas_input --freq --allow-extra-chr --allow-no-sex
