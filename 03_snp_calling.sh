@@ -22,7 +22,7 @@ module load BCFtools/1.9-foss-2018a
 echo "================="
 
 chrom=(CHR1 CHR2 CHR3 CHR4 CHR5 CHR6 CHR7 CHR8 CHR9 CHR10)
-names=(1 2 3 4 5 6 7 8 9 10)
+names=(01 02 03 04 05 06 07 08 09 10)
 
 # Sample IDs
 samples=(S-01 S-02 S-03 S-04 S-05 S-06 S-07 S-08 \
