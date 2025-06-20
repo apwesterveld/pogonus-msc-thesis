@@ -2,7 +2,7 @@
 #SBATCH --cluster=genius 
 #SBATCH --job-name snps 
 #SBATCH --nodes=1 
-#SBATCH --ntasks-per-node=20
+#SBATCH --cpus-per-task=20
 #SBATCH --time=72:00:00 
 #SBATCH -A lp_svbelleghem
 #SBATCH -o call_snps.%j.out
@@ -14,14 +14,15 @@ ID=$((SLURM_ARRAY_TASK_ID -1))
 
 # Load the programs we will use
 module load BCFtools/1.9-foss-2018a
-module load Python/3.7.0-foss-2018a
-export BCFTOOLS_PLUGINS=/data/leuven/361/vsc36175/bcftools/plugins
+
+#for local BCFtools:
+#module load Python/3.7.0-foss-2018a
+#export BCFTOOLS_PLUGINS=/data/leuven/361/vsc36175/bcftools/plugins
 
 echo "================="
 
-chrom=(CM008230.1_RagTag CM008231.1_RagTag CM008233.1_RagTag CM008234.1_RagTag CM008235.1_RagTag CM008236.1_RagTag CM008237.1_RagTag CM008238.1_RagTag CM008239.1_RagTag CM008240.1_RagTag)
-names=(1 10 2 3 4 5 6 7 8 9)
-
+chrom=(CHR1 CHR2 CHR3 CHR4 CHR5 CHR6 CHR7 CHR8 CHR9 CHR10)
+names=(1 2 3 4 5 6 7 8 9 10)
 
 # Sample IDs
 samples=(S-01 S-02 S-03 S-04 S-05 S-06 S-07 S-08 \
@@ -57,11 +58,11 @@ cd /scratch/leuven/361/vsc36175/bams
 
 # make a single list of all the samples that can be used in the samtools command
 ALL_LIST=""
-for FILE in ${samples[*]}
-do
-ALL_LIST="$ALL_LIST $FILE".$REFNAME.filtered.sorted.bam""
+for FILE in "${samples[@]}"; do
+    ALL_LIST+=" ${FILE}.${REFNAME}.filtered.sorted.bam"
 done
-eval command=\$$(echo ALL_LIST)
+ 
+command="$ALL_LIST"
 
 echo "Reference: $REF"
 echo "Chromosome: ${chrom[ID]}"
@@ -81,4 +82,4 @@ fi
 
 # run mpileup
 bcftools mpileup -Oz --threads 20 -f $REF $command -r ${chrom[ID]} | \
-bcftools call -m -Oz -o /scratch/leuven/361/vsc36175/P_chalceus_NP25__$REFNAME.chr_${names[ID]}".vcf.gz
+bcftools call -m -Oz -o /scratch/leuven/361/vsc36175/P_chalceus_NP25_$REFNAME.chr_${names[ID]}.vcf.gz
