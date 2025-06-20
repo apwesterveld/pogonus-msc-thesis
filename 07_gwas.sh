@@ -9,6 +9,8 @@
 
 module load BCFtools/1.9-foss-2018a
 
+cd /scratch/leuven/361/vsc36175/
+
 # Remove the samples that don't have a wing measurement (not found in the phenotype.txt file)
 # Shouldn't be the case with NP25
 #bcftools view --threads 20 --samples-file ^remove_samples.txt gwas_imputed.vcf.gz -Oz -o gwas_imputed_clean.vcf.gz
