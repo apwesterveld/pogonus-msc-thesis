@@ -9,6 +9,8 @@
 
 module load BCFtools/1.9-foss-2018a
 
+cd /scratch/leuven/361/vsc36175/
+
 bcftools query -l P_chalceus_NP25_BarSW_merged.vcf.gz > vcf_samples.txt
 cut -f2 phenotype_modified.txt  > phenotype_samples.txt
 comm -3 <(sort vcf_samples.txt) <(sort phenotype_samples.txt)
