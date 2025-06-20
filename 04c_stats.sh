@@ -12,6 +12,8 @@ module load BCFtools/1.9-foss-2018a
 source /data/leuven/361/vsc36175/miniconda3/etc/profile.d/conda.sh
 conda activate vcftools
 
+cd /scratch/leuven/361/vsc36175/
+
 # Gives variant count, transition/transversion ratio, missing genotype rates, etc..
 bcftools stats P_chalceus_NP25_BarSW_merged.vcf.gz
 
