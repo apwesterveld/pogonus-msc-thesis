@@ -16,8 +16,8 @@ vcftools --gzvcf P_chalceus_NP25_BarSW_merged.vcf.gz --missing-indv
 
 # Filtering
 vcftools --gzvcf P_chalceus_NP25_BarSW_merged.vcf.gz \
---max-missing 0.9 --minQ 30 --maf 0.05 --remove-indels --recode --stdout | bgzip > P_chalceus_NP25_BarSW_merged_filtered.vcf.gz
-# max-missing 0.9: At least 90% of individuals must have a called genotype
+--max-missing 1 --minQ 30 --maf 0.05 --remove-indels --recode --stdout | bgzip > P_chalceus_NP25_BarSW_merged_filtered.vcf.gz
+# max-missing 0.9: At least 90% of individuals must have a called genotype. First try with 100%
 # minQ 30: minimum quality score of 30
 # maf 0.05: minor allele frequency (MAF) threshold of 0.05
 # remove-indels: exclude indels, keeping only SNPs
