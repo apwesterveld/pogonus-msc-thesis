@@ -9,7 +9,7 @@
 
 module load BCFtools/1.9-foss-2018a
 
-cd /scratch/leuven/361/vsc36175/NP25_gwas_emerged95s5trials_mm80
+cd /scratch/leuven/361/vsc36175/NP25_gwas_emerged95s3trials_mm80
 
 # Remove the samples that don't have a wing measurement (not found in the phenotype.txt file)
 # Shouldn't be the case with NP25
@@ -22,7 +22,7 @@ bcftools query -l ../P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit.vcf.g
 # Phenotype file should have the same FID and IID columns, and sample order should be same in vcf file 
 # ! interpretation phenotype 0,1,2: for case/control status (e.g., 1=control, 2=case, 0=missing)
 module load PLINK/1.9
-plink --vcf ../P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit.vcf.gz --pheno ../phenotype.txt --allow-no-sex --pheno-name emerged95s5trials \
+plink --vcf ../P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit.vcf.gz --pheno ../phenotype.txt --allow-no-sex --pheno-name emerged95s3trials \
 --double-id --make-bed --allow-extra-chr --out gwas_input
 
 # To confirm that the .bed file is properly formatted
