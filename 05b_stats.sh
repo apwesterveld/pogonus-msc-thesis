@@ -29,5 +29,5 @@ vcftools --gzvcf P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned5k_multiSplit
 # Checks allele frequency distribution 
 vcftools --gzvcf P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned5k_multiSplit.vcf.gz --freq
 
-# Checks allele density
+# Checks SNP density
 vcftools --gzvcf P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned5k_multiSplit.vcf.gz --SNPdensity 1000000 --out snp_density
