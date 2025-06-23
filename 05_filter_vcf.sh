@@ -25,9 +25,12 @@ vcftools --gzvcf P_chalceus_NP25_BarSW_merged.vcf.gz \
 # maf 0.05: minor allele frequency (MAF) threshold of 0.05
 # remove-indels: exclude indels, keeping only SNPs
 
+# Thinning
+vcftools --thin 1000 --gzvcf P_chalceus_NP25_BarSW_merged_filtered_mm80.vcf.gz --recode --stdout | bgzip > P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned.vcf.gz
+
 # Split the multiallelic SNPs into multiple biallelic ones
 module load BCFtools/1.9-foss-2018a
-bcftools norm -m -any -o P_chalceus_NP25_BarSW_merged_filtered_multiSplit.vcf.gz -Oz P_chalceus_NP25_BarSW_merged_filtered_mm88.vcf.gz
+bcftools norm -m -any -o P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned_multiSplit.vcf.gz -Oz P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned.vcf.gz
 
 # Index VCF file
-tabix -p vcf P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit.vcf.gz
+tabix -p vcf P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned_multiSplit.vcf.gz
