@@ -29,3 +29,6 @@ vcftools --gzvcf P_chalceus_NP25_BarSW_merged.vcf.gz --missing-indv
 
 # Checks allele frequency distribution 
 vcftools --gzvcf P_chalceus_NP25_BarSW_merged.vcf.gz --freq
+
+# Checks SNP density
+vcftools --gzvcf P_chalceus_NP25_BarSW_merged.vcf.gz --SNPdensity 1000000 --out snp_density
