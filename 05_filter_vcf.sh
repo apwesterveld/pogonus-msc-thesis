@@ -19,7 +19,7 @@ vcftools --gzvcf P_chalceus_NP25_BarSW_merged.vcf.gz --missing-indv
 
 # Filtering
 vcftools --gzvcf P_chalceus_NP25_BarSW_merged.vcf.gz \
---max-missing 1 --minQ 30 --maf 0.05 --remove-indels --recode --stdout | bgzip > P_chalceus_NP25_BarSW_merged_filtered.vcf.gz
+--max-missing 0.8 --minQ 30 --maf 0.05 --remove-indels --recode --stdout | bgzip > P_chalceus_NP25_BarSW_merged_filtered_mm80.vcf.gz
 # max-missing 0.9: At least 90% of individuals must have a called genotype. First try with 100%
 # minQ 30: minimum quality score of 30
 # maf 0.05: minor allele frequency (MAF) threshold of 0.05
@@ -27,7 +27,7 @@ vcftools --gzvcf P_chalceus_NP25_BarSW_merged.vcf.gz \
 
 # Split the multiallelic SNPs into multiple biallelic ones
 module load BCFtools/1.9-foss-2018a
-bcftools norm -m -any -o P_chalceus_NP25_BarSW_merged_filtered_multiSplit.vcf.gz -Oz P_chalceus_NP25_BarSW_merged_filtered.vcf.gz
+bcftools norm -m -any -o P_chalceus_NP25_BarSW_merged_filtered_multiSplit.vcf.gz -Oz P_chalceus_NP25_BarSW_merged_filtered_mm88.vcf.gz
 
 # Index VCF file
-tabix -p vcf P_chalceus_NP25_BarSW_merged_filtered_multiSplit.vcf.gz
+tabix -p vcf P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit.vcf.gz
