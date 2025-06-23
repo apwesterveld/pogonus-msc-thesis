@@ -15,16 +15,14 @@ cd /scratch/leuven/361/vsc36175/
 # Shouldn't be the case with NP25
 #bcftools view --threads 20 --samples-file ^remove_samples.txt gwas_imputed.vcf.gz -Oz -o gwas_imputed_clean.vcf.gz
 
-bcftools index -t P_chalceus_NP25_BarSW_merged_filtered_multiSplit.vcf.gz
-
 # Checks the number of samples
-bcftools query -l P_chalceus_NP25_BarSW_merged_filtered_multiSplit.vcf.gz | wc -l
+bcftools query -l ../P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned5k_multiSplit.vcf.gz | wc -l
 
 # Prepare the GWAS with PLINK
 # Phenotype file should have the same FID and IID columns, and sample order should be same in vcf file 
 # ! interpretation phenotype 0,1,2: for case/control status (e.g., 1=control, 2=case, 0=missing)
 module load PLINK/1.9
-plink --vcf P_chalceus_NP25_BarSW_merged_filtered_multiSplit.vcf.gz --pheno ../phenotype.txt --allow-no-sex --pheno-name WL \
+plink --vcf ../P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned5k_multiSplit.vcf.gz --pheno ../phenotype.txt --allow-no-sex --pheno-name WL \
 --double-id --make-bed --allow-extra-chr --out gwas_input
 
 # To confirm that the .bed file is properly formatted
