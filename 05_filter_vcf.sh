@@ -26,7 +26,7 @@ vcftools --gzvcf P_chalceus_NP25_BarSW_merged.vcf.gz \
 # remove-indels: exclude indels, keeping only SNPs
 
 # Thinning
-vcftools --thin 1000 --gzvcf P_chalceus_NP25_BarSW_merged_filtered_mm80.vcf.gz --recode --stdout | bgzip > P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned.vcf.gz
+vcftools --thin 5000 --gzvcf P_chalceus_NP25_BarSW_merged_filtered_mm80.vcf.gz --recode --stdout | bgzip > P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned.vcf.gz
 
 # Split the multiallelic SNPs into multiple biallelic ones
 module load BCFtools/1.9-foss-2018a
