@@ -30,7 +30,7 @@ vcftools --thin 5000 --gzvcf P_chalceus_NP25_BarSW_merged_filtered_mm80.vcf.gz -
 
 # Split the multiallelic SNPs into multiple biallelic ones
 module load BCFtools/1.9-foss-2018a
-bcftools norm -m -any -o P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned_multiSplit.vcf.gz -Oz P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned.vcf.gz
+bcftools norm -m -any -o P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned5k_multiSplit.vcf.gz -Oz P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned5k.vcf.gz
 
 # Index VCF file
-tabix -p vcf P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned_multiSplit.vcf.gz
+tabix -p vcf P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned5k_multiSplit.vcf.gz
