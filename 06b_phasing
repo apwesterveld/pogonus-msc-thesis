@@ -1,0 +1,38 @@
+#!/bin/bash -l 
+#SBATCH --cluster=genius 
+#SBATCH --job-name phasing 
+#SBATCH --nodes=1 
+#SBATCH --cpus-per-task=20
+#SBATCH --time=24:00:00 
+#SBATCH -A lp_svbelleghem
+#SBATCH -o phasing.%j.out
+
+# Load java to use beagle
+module load Java/11.0.20
+
+module load BCFtools/1.9-foss-2018a
+
+# take only chromosome 2
+bcftools view -r CHR2 P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit.vcf.gz -o P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_chr2.vcf.gz -Oz
+
+# Index new vcf
+tabix -p vcf P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_chr2.vcf.gz
+
+# Phasing with beagle, no imputing
+java -Xmx20g -jar /data/leuven/361/vsc36175/beagle.27Feb25.75f.jar \
+  gt=P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_chr2 \
+  out=P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_chr2_phased \
+  nthreads=16 \
+  impute=false
+
+tabix -p vcf P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_chr2_phased.vcf.gz
+
+
+pos_min = 42063209
+pos_max = 57402253
+
+bcftools view -r $pos_min,$pos_max P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_chr2_phased.vcf.gz -Oz -o P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_chr2_phased_regionWL.vcf.gz
+
+bcftools view -r CHR2:42063209-57402253 P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_chr2_phased.vcf.gz -Oz -o P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_chr2_phased_regionWL.vcf.gz
+
+tabix -p vcf P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_chr2_phased_regionWL.vcf.gz
