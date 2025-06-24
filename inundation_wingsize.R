@@ -24,11 +24,11 @@ library(flexsurv)    # Flexible parametric survival models
 library(scales)      # for percent_format()
 library(ggfortify)   # Plot survival analysis
 library(ggpubr)      # in combined plots, ex rremove("ylab")
-
+library(readxl)
 
 
 # Set working directory
-dir <- "/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/results/"
+dir <- "/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/"
 setwd(dir)
 
 # to compare levels (when using factors) to the grand mean and coefficients sum to zero
@@ -36,7 +36,7 @@ set_sum_contrasts()
 
 # Load data ####
 #data <- read.xlsx("CLEANED.xlsx")
-data <- read.xlsx("Pogonus_Nieuwpoort_2025_local.xlsx")
+data <- read.xlsx("results/Pogonus_Nieuwpoort_2025_local.xlsx")
 
 for (i in 1:5) {
   action_col <- paste0("action", i)
@@ -49,6 +49,22 @@ for (i in 1:5) {
   )
 }
 
+# calculate ratio of emerge/submerge ation 
+data$action5trials <- apply(data[, c("actionInduced1", "actionInduced2", "actionInduced3", "actionInduced4", "actionInduced5")], 1, function(row) {
+  count_emerge <- sum(row == "emerge", na.rm = TRUE)
+  non_na_count <- sum(!is.na(row))
+  divisor <- if (non_na_count == 5) 5 else 4
+  count_emerge / divisor
+})
+
+data$action3trials <- apply(data[, c("actionInduced3", "actionInduced4", "actionInduced5")], 1, function(row) {
+  count_emerge <- sum(row == "emerge", na.rm = TRUE)
+  non_na_count <- sum(!is.na(row))
+  divisor <- if (non_na_count == 3) 3 else 2
+  count_emerge / divisor
+})
+
+# transformations
 data$IID <- as.factor(data$IID)
 data$sex <- as.factor(data$sex)
 data$action1 <- factor(data$action1, levels = c("submerge", "emerge"))
@@ -63,15 +79,29 @@ data$position300s4 <- as.factor(data$position300s4)
 data$position300s5 <- as.factor(data$position300s5)
 
 # calculate %MRWS (Maximum Realizable Wing Size)
-A_females = 1.2146 
-A_males = 1.1924 
-B_females = 0.8497 
-B_males = 0.8516 
+# group 2: + and - functional flight muscles
+# A_females = 1.2146 
+# A_males = 1.1924 
+# B_females = 0.8497 
+# B_males = 0.8516 
+# group 5: standard group (+ functional flight muscles and regularly flying)
+A_females = 1.4654 
+A_males = 1.4879 
+B_females = 0.8454 
+B_males = 0.8385 
 data$Esize <- data$EL * data$EW
 data$Wsize <- data$WL * data$WW
-data$maxWsize[data$Sex == "F"] <- exp(A_females) * data$Esize^B_females
-data$maxWsize[data$Sex == "M"] <- exp(A_males) * data$Esize^B_males
+
+data$maxWsize <- NA
+
+for (i in 1:nrow(data)) {
+  ifelse(data$sex[i]=='F',data$maxWsize[i]<-exp(A_females) * data$Esize[i]^B_females,
+         ifelse(data$sex[i]=='M',data$maxWsize[i]<-exp(A_males) * data$Esize[i]^B_males,NA))
+}
 data$relMRWS <- data$Wsize/data$maxWsize
+
+data$sex_numeric <- data$sex
+data$sex_numeric <- ifelse(data$sex=='F',0,1)
 
 # calculate some other possible variables
 data$WEratio <- data$WL/data$EL
@@ -118,27 +148,20 @@ data_long$censored <- ifelse(data_long$time == 300, 0, 1)
 data_long_trial12345 <- na.omit(subset(data_long, select = c(-position, -position_numeric)))
 data_long_trial345 <- na.omit(data_long %>% filter(trial %in% c("3", "4", "5")))
 
-#compare with old data
-olddata <- read.xlsx("POGONUS_Genome_sequencing_MASTER_FILE 1.xlsx")
-olddata$Locality <- as.factor(olddata$Locality)
-olddata$Sex <- as.factor(olddata$Sex)
-olddata$Habitat <- as.factor(olddata$Habitat)
+## Export ####
+#export phenotypes for gwas
+write.xlsx(data[, c("IID","WL","EL","relMRWS","action5trials",'action3trials')], file = "phenotype.xlsx", rowNames = FALSE)
 
-olddata$Esize <- olddata$EL * olddata$EW
-olddata$Wsize <- olddata$WL * olddata$WW
-olddata$maxWsize <- NA
-
-for (i in 1:nrow(olddata)) {
-  ifelse(olddata$Sex[i]=='F',olddata$maxWsize[i]<-exp(A_females) * olddata$Esize[i]^B_females,
-         ifelse(olddata$Sex[i]=='M',olddata$maxWsize[i]<-exp(A_males) * olddata$Esize[i]^B_males,NA))
-}
-olddata$relMRWS <- olddata$Wsize/olddata$maxWsize
 
 # MORPHOLOGY ####
 
 ## Summary ####
 
 summary(data[c('EL','EW','WL','WW','relMRWS')])
+
+# SD
+
+sd(na.omit(data$relMRWS))
 
 # standard error of the mean
 sd(na.omit(data$WL)) / sqrt(length(na.omit(data$WL)))
@@ -174,6 +197,16 @@ cor.test(data$EL, data$WL, method="pearson")
 # using %MRWS as wing size removes the correlation with EL (and therefor probably also with sex)
 plot(data$EL, data$relMRWS)
 cor.test(data$EL, data$relMRWS, method="pearson")
+
+plot(data_long_trial12345$relMRWS, data_long_trial12345$emergeCount)
+
+plot(data$relMRWS, data$emergeCount)
+cor.test(data$relMRWS, data$emergeCount, method="pearson")
+
+
+
+cor.test(data$sex, data$emergeCount, method="pearson")
+
 
 ## Violin plots ####
 # make plots
@@ -287,7 +320,85 @@ plot_relMWRS
 #ggsave(plot_relMWRS, file="plot_relMWRS.svg", width=3.5, height=4.5)
 ggsave(plot_relMWRS, file="plot_relMWRS.svg", width=3.5, height=3.5)
 
-# compare %MRWS with other localities
+## Compare sex ####
+fit <- lm(EL ~ sex, data=data)
+shapiro.test(residuals(fit))  # W > 0.9, so no deviation from normality
+ncvTest(fit) #the variances do not significantly diverge from homogeneous
+summary(fit) #p<0.001
+
+fit <- lm(WL ~ sex, data=data)
+shapiro.test(residuals(fit))  # W > 0.9, so no deviation from normality
+ncvTest(fit) #the variances do not significantly diverge from homogeneous
+summary(fit) #p<0.05
+
+fit <- lm(relMRWS ~ sex, data=data)
+shapiro.test(residuals(fit))  # W > 0.9, so no deviation from normality
+ncvTest(fit) #the variances do not significantly diverge from homogeneous
+summary(fit) # NS
+
+y_min <- 2.5 #min(c(data$EL, data$EW, data$WL, data$WW))
+y_max <- 5 #max(c(data$EL, data$EW, data$WL, data$WW))
+plot_EL_sex <- ggplot(data, aes(x = sex, y = EL)) +
+  geom_violin(fill = "brown", color = "black") +
+  geom_jitter(width = 0.2, alpha = 0.7) +
+  geom_boxplot(width = 0.1, color = "black", alpha = 0.7) +
+  scale_x_discrete(labels = c("F" = "Female", "M" = "Male")) +
+  labs(title = "Elytra length (mm)",x = NULL, y = NULL) +
+  coord_cartesian(ylim = c(y_min, y_max)) +
+  theme_minimal(base_size = 18) +
+  theme(plot.title = element_text(hjust = 0.5,size=18))
+
+plot_EL_sex
+y_min <- 2.5 #min(c(data$EL, data$EW, data$WL, data$WW))
+y_max <- 5 #max(c(data$EL, data$EW, data$WL, data$WW))
+plot_WL_sex <- ggplot(data, aes(x = sex, y = WL)) +
+  geom_violin(fill = "lightyellow", color = "black") +
+  geom_jitter(width = 0.2, alpha = 0.7) +
+  geom_boxplot(width = 0.1, color = "black", alpha = 0.7) +
+  scale_x_discrete(labels = c("F" = "Female", "M" = "Male")) +
+  labs(x = NULL, title = "Wing length (mm)",y=NULL) +
+  coord_cartesian(ylim = c(y_min, y_max)) +
+  theme_minimal(base_size = 18)+
+  theme(plot.title = element_text(hjust = 0.5,size=18))
+
+y_min <- 0 #min(c(data$EL, data$EW, data$WL, data$WW))
+y_max <- 1 #max(c(data$EL, data$EW, data$WL, data$WW))
+plot_relMRWS_sex <- ggplot(data, aes(x = sex, y = relMRWS)) +
+  geom_violin(fill = "#4B8CEE", color = "black") +
+  geom_jitter(width = 0.2, alpha = 0.7) +
+  geom_boxplot(width = 0.1, color = "black", alpha = 0.7) +
+  scale_x_discrete(labels = c("F" = "Female", "M" = "Male")) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+  labs(x = NULL,title = "%MRWS",y=NULL) +
+  coord_cartesian(ylim = c(y_min, y_max)) +
+  theme_minimal(base_size = 18)+
+  theme(plot.title = element_text(hjust = 0.5,size=18))
+
+plot_morph_sex <- grid.arrange(plot_EL_sex, plot_WL_sex, plot_relMRWS_sex,
+             nrow=1)
+ggsave(
+  plot_morph_sex, 
+  file="results/plot_morph_sex.svg", width=10.5, height=3.5)
+
+## Compare old data ####
+# compare %MRWS with other localities 
+
+# import ±2011 data
+olddata <- read.xlsx("results/POGONUS_Genome_sequencing_MASTER_FILE 1.xlsx")
+olddata$Locality <- as.factor(olddata$Locality)
+olddata$Sex <- as.factor(olddata$Sex)
+olddata$Habitat <- as.factor(olddata$Habitat)
+
+olddata$Esize <- olddata$EL * olddata$EW
+olddata$Wsize <- olddata$WL * olddata$WW
+olddata$maxWsize <- NA
+
+for (i in 1:nrow(olddata)) {
+  ifelse(olddata$Sex[i]=='F',olddata$maxWsize[i]<-exp(A_females) * olddata$Esize[i]^B_females,
+         ifelse(olddata$Sex[i]=='M',olddata$maxWsize[i]<-exp(A_males) * olddata$Esize[i]^B_males,NA))
+}
+olddata$relMRWS <- olddata$Wsize/olddata$maxWsize
+
 ggplot(olddata, aes(x = Locality, y = relMRWS)) +
   geom_violin(trim = FALSE, fill = "skyblue", color = "black") +
   labs(title = "Violin Plot of relMRWS by Locality",
@@ -295,63 +406,171 @@ ggplot(olddata, aes(x = Locality, y = relMRWS)) +
        y = "relMRWS") +
   theme_minimal()
 
-y_min <- 0
-y_max <- 1.2
+# manually add Nieuwpoort 1995 data
+NP_95_relMRWS <- c(
+  40.04, 51.48, 38.98, 50.03, 57.34, 32.35, 43.16, 29.40, 29.39, 38.30,
+  36.67, 58.97, 49.20, 33.92, 40.72, 54.43, 41.04, 37.90, 46.75, 66.09,
+  49.64, 36.03, 48.86, 34.84, 44.90, 39.89, 52.78, 35.61, 47.67, 47.89,
+  43.35, 41.67, 52.76, 41.88, 38.55, 69.11, 31.34, 49.38, 54.50, 52.90,
+  58.30, 25.75, 46.36, 59.14, 56.30, 49.98, 54.62, 63.69, 41.58, 42.79,
+  42.32, 37.02, 49.88, 43.30, 36.84, 51.52, 38.54, 54.83, 60.26, 37.14,
+  42.82, 69.13, 52.65, 52.33
+)
+NP_95_relMRWS<-NP_95_relMRWS/100
+data_NP_95 <- data.frame(relMRWS = NP_95_relMRWS)
 
-plot_relMWRS_NP_tidal <- ggplot(data, aes(x = factor(1), y = relMRWS)) +
-  geom_violin(fill = "lightblue", color = "black") +
+# manually add Dudzele/Lissewege 2002 data
+LIS_02_relMRWS <- c(
+  80.12, 77.66, 83.23, 74.28, 80.27, 82.93, 81.49, 83.52, 88.44, 79.71,
+  71.09, 78.43, 70.92, 73.52, 74.28, 72.56, 77.49, 76.46, 69.58, 79.80,
+  65.16, 67.77, 81.79, 82.94, 78.20, 81.55, 69.80, 67.50, 78.48
+)
+LIS_02_relMRWS<-LIS_02_relMRWS/100
+data_LIS_02 <- data.frame(relMRWS = LIS_02_relMRWS)
+
+# test differences between NP '95, '11 and '25
+sd(NP_95_relMRWS) # 0.09827353
+sd(data_nieuwpoort_tidal$relMRWS) # 0.06324164
+sd(na.omit(data$relMRWS)) # 0.06666338
+
+NP_relMRWS_long <- data.frame(
+  relMRWS = c(NP_95_relMRWS, data_nieuwpoort_tidal$relMRWS, na.omit(data$relMRWS)),
+  group = factor(c(
+    rep("NP_95", length(NP_95_relMRWS)),
+    rep("NP_11", length(data_nieuwpoort_tidal$relMRWS)),
+    rep("NP_25", length(na.omit(data$relMRWS)))
+  ))
+)
+# NP_relMRWS_long <- data.frame(
+#   relMRWS = c(NP_95_relMRWS, data$relMRWS),
+#   group = factor(c(
+#     rep("NP_95", length(NP_95_relMRWS)),
+#     rep("NP_25", length(data$relMRWS))
+#   ))
+# )
+
+fit <- lm(relMRWS ~ group, data=NP_relMRWS_long)
+shapiro.test(residuals(fit))  # W > 0.9, so no deviation from normality
+ncvTest(fit) #the variances do significantly diverge from homogeneous
+spreadLevelPlot(fit)
+# so use gls to allow different variances
+library(nlme)
+fit2 <- gls(relMRWS ~ group,weights = varIdent(form=~1|group), data=NP_relMRWS_long)
+summary(fit2)
+plot(allEffects(fit2), lty=0)
+
+# type III testing not possible with gls, but doesn't matter with only one categorical predictor variable
+# Pairwise comparisons (Tukey-adjusted)
+pairwise_results <- pairs(emmeans(fit2, ~ group), adjust = "tukey")
+summary(pairwise_results)
+# contrast      estimate     SE   df t.ratio p.value
+# NP_11 - NP_25   0.0361 0.0138 29.8   2.619  0.0356
+# NP_11 - NP_95  -0.0959 0.0178 64.3  -5.384  <.0001
+# NP_25 - NP_95  -0.1320 0.0132 83.3 -10.007  <.0001
+
+y_min <- 0
+y_max <- 1
+
+plot_relMWRS_NP_tidal_25 <- ggplot(data, aes(x = factor(1), y = relMRWS)) +
+  geom_violin(fill = "#4B8CEE", color = "black") +
   geom_jitter(width = 0.2, alpha = 0.7) +
   geom_boxplot(width = 0.1, color = "black") +
-  labs(x = "BE: tidal (n=192)", y = "%MRWS") +
+  labs(x = "BE: tidal\nYser est. '25\n n=192", y = NULL) +
   coord_cartesian(ylim = c(y_min, y_max)) +  # Use coord_cartesian to fix y-axis range
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
   theme_minimal(base_size = 18) +
-  theme(axis.text.x = element_blank())
-plot_relMWRS_NP_tidal
+  theme(axis.text.x = element_blank(), axis.text.y = element_blank())
+plot_relMWRS_NP_tidal_25
+
+nrow(data_NP_95)
+plot_relMWRS_NP_tidal_95 <- ggplot(data_NP_95, aes(x = factor(1), y = relMRWS)) +
+  geom_violin(fill = "#ADD8E6", color = "black") +
+  geom_jitter(width = 0.2, alpha = 0.7) +
+  geom_boxplot(width = 0.1, color = "black") +
+  labs(x = "BE: tidal\nYser est. '95\n n=64", y = NULL) +
+  coord_cartesian(ylim = c(y_min, y_max)) +  # Use coord_cartesian to fix y-axis range
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+  theme_minimal(base_size = 18) +
+  theme(axis.text.x = element_blank(), axis.text.y = element_blank())
+plot_relMWRS_NP_tidal_95
+
+data_nieuwpoort_tidal <- subset(olddata,Locality=="Belgium: Nieuwpoort")
+nrow(data_nieuwpoort_tidal)
+plot_relMRWS_nieuwpoort_tidal_11 <- ggplot(data_nieuwpoort_tidal, aes(x = factor(1), y = relMRWS)) +
+  geom_violin(fill = "#7CB5E9", color = "black") +
+  geom_jitter(width = 0.2, alpha = 0.7) +
+  geom_boxplot(width = 0.1, color = "black") +
+  labs(x = "BE: tidal\nYser est. '11\n n=24", y = NULL) +
+  coord_cartesian(ylim = c(y_min, y_max)) +  # Use coord_cartesian to fix y-axis range
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+  theme_minimal(base_size = 18) +
+  theme(axis.text.x = element_blank(), axis.text.y = element_blank())
+plot_relMRWS_nieuwpoort_tidal_11
+
+nrow(data_LIS_02)
+plot_relMWRS_dudzele_seasonal_02 <- ggplot(data_LIS_02, aes(x = factor(1), y = relMRWS)) +
+  geom_violin(fill = "red", color = "black") +
+  geom_jitter(width = 0.2, alpha = 0.7) +
+  geom_boxplot(width = 0.1, color = "black") +
+  labs(x = "BE: seasonal\nDudzele '02\n n=29", y = NULL) +
+  coord_cartesian(ylim = c(y_min, y_max)) +  # Use coord_cartesian to fix y-axis range
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+  theme_minimal(base_size = 18) +
+  theme(axis.text.x = element_blank(), axis.text.y = element_blank())
+plot_relMWRS_dudzele_seasonal_02
 
 data_dudzele_seasonal <- subset(olddata,Locality=="Belgium: Dudzele")
 nrow(data_dudzele_seasonal)
-plot_relMRWS_dudzele_seasonal <- ggplot(data_dudzele_seasonal, aes(x = factor(1), y = relMRWS)) +
-  geom_violin(fill = "lightblue", color = "black") +
+plot_relMRWS_dudzele_seasonal_11 <- ggplot(data_dudzele_seasonal, aes(x = factor(1), y = relMRWS)) +
+  geom_violin(fill = "red", color = "black") +
   geom_jitter(width = 0.2, alpha = 0.7) +
   geom_boxplot(width = 0.1, color = "black") +
-  labs(x = "BE: seasonal (n=24)", y = NULL) +
+  labs(x = "BE: seasonal\nDudzele '11\n n=24", y = NULL) +
   coord_cartesian(ylim = c(y_min, y_max)) +  # Use coord_cartesian to fix y-axis range
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
   theme_minimal(base_size = 18) +
-  theme(axis.text.x = element_blank())
-plot_relMRWS_dudzele_seasonal
+  theme(axis.text.x = element_blank(), axis.text.y = element_blank())
+plot_relMRWS_dudzele_seasonal_11
 
 data_guérande_tidal <- subset(olddata,Locality=="France: Guérande"&Habitat=='tidal')
 nrow(data_guérande_tidal)
 plot_relMRWS_guérande_tidal <- ggplot(data_guérande_tidal, aes(x = factor(1), y = relMRWS)) +
-  geom_violin(fill = "lightblue", color = "black") +
+  geom_violin(fill = "blue", color = "black") +
   geom_jitter(width = 0.2, alpha = 0.7) +
   geom_boxplot(width = 0.1, color = "black") +
-  labs(x = "FR: tidal (n=24)", y = NULL) +
+  labs(x = "FR: tidal\nGuérande '11\n n=24", y = NULL) +
   coord_cartesian(ylim = c(y_min, y_max)) +  # Use coord_cartesian to fix y-axis range
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
   theme_minimal(base_size = 18) +
-  theme(axis.text.x = element_blank())
+  theme(axis.text.x = element_blank(), axis.text.y = element_blank())
 plot_relMRWS_guérande_tidal
 
 data_guérande_seasonal <- subset(olddata,Locality=="France: Guérande"&Habitat=='seasonal')
 plot_relMRWS_guérande_seasonal <- ggplot(data_guérande_seasonal, aes(x = factor(1), y = relMRWS)) +
-  geom_violin(fill = "lightblue", color = "black") +
+  geom_violin(fill = "red", color = "black") +
   geom_jitter(width = 0.2, alpha = 0.7) +
   geom_boxplot(width = 0.1, color = "black") +
-  labs(x = "FR: seasonal (n=24)", y = NULL) +
+  labs(x = "FR: seasonal\nGuérande '11\n n=24", y = '%MRWS') +
   coord_cartesian(ylim = c(y_min, y_max)) +  # Use coord_cartesian to fix y-axis range
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
   theme_minimal(base_size = 18) +
   theme(axis.text.x = element_blank())
 plot_relMRWS_guérande_seasonal
 
-relMRWS_comp <- grid.arrange(plot_relMWRS_NP_tidal, plot_relMRWS_dudzele_seasonal, plot_relMRWS_guérande_tidal, plot_relMRWS_guérande_seasonal, nrow = 1)
+relMRWS_comp <- grid.arrange(
+  plot_relMRWS_guérande_seasonal,
+  plot_relMRWS_guérande_tidal, 
+  plot_relMWRS_dudzele_seasonal_02,
+  plot_relMRWS_dudzele_seasonal_11, 
+  plot_relMWRS_NP_tidal_95,
+  plot_relMRWS_nieuwpoort_tidal_11,
+  plot_relMWRS_NP_tidal_25,
+  nrow = 1,widths = c(2.8, 2, 2, 2, 2, 2, 2))
+
+relMRWS_comp
 ggsave(
   relMRWS_comp, 
-  file="plot_relMRWS_comp.svg", width=12, height=4)
-
+  file="results/plot_relMRWS_comp.svg", width=12, height=4)
 
 # INUNDATION ####
 
@@ -551,15 +770,15 @@ plot_action_randomized <-
                 position = position_dodge(width = 0.8), width = 0.2) +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   labs(
-    x = "Proportion emerge",
-    y = "Percentage of Beetles",
+    x = "Proportion emerged in five trials",
+    y = "Percentage of beetles",
     fill = ""
   ) +
-  scale_fill_manual(values = c("Actual" = "Dark Red", "Randomized" = "Light Coral")) +
+  scale_fill_manual(values = c("Actual" = "darkseagreen4", "Randomized" = "darkseagreen2")) +
   theme_minimal(base_size = 18) +
   theme(legend.position = c(0.2, 0.95))
 plot_action_randomized
-ggsave(plot_action_randomized, file="plot_action_randomized.svg", width=6, height=4)
+ggsave(plot_action_randomized, file="results/plot_action_randomized.svg", width=6, height=4)
 
 
 # test for significant difference between distributions
@@ -674,7 +893,7 @@ emergeDistributionRandom$label <- paste0(emergeDistributionRandom$emergeCount, "
 plot_data <- bind_rows(
   emergeDistribution %>%
     transmute(
-      label = paste0(emergeCount3trials, "/5"),
+      label = paste0(emergeCount3trials, "/3"),
       percent = proportion * 100,
       ymin = ymin * 100,
       ymax = ymax * 100,
@@ -682,7 +901,7 @@ plot_data <- bind_rows(
     ),
   emergeDistributionRandom %>%
     transmute(
-      label = paste0(emergeCount3trials, "/5"),
+      label = paste0(emergeCount3trials, "/3"),
       percent = mean_prop * 100,
       ymin = ymin_prop * 100,
       ymax = ymax_prop * 100,
@@ -699,15 +918,15 @@ plot_action_randomized <-
                 position = position_dodge(width = 0.8), width = 0.2) +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   labs(
-    x = "Proportion emerge",
-    y = "Percentage of Beetles",
+    x = "Proportion emerged in three trials",
+    y = "Percentage of beetles",
     fill = ""
   ) +
-  scale_fill_manual(values = c("Actual" = "Dark Red", "Randomized" = "Light Coral")) +
+  scale_fill_manual(values = c("Actual" = "darkseagreen4", "Randomized" = "darkseagreen2")) +
   theme_minimal(base_size = 18) +
   theme(legend.position = c(0.2, 0.95))
 plot_action_randomized
-ggsave(plot_action_randomized, file="plot_action_randomized_3trials.svg", width=6, height=4)
+ggsave(plot_action_randomized, file="results/plot_action_randomized_3trials.svg", width=6, height=4)
 
 
 # test for significant difference between distributions
@@ -1129,10 +1348,11 @@ data_input <- data_long_trial12345
 data_input <- data_long_trial12345 
 data_input <- subset(data_input,time>20)
 
-#time50 <- median(data_input$time)
 T_cutoff <- 95
+T_cutoff <- 123
+
 data_input$emerged_T_cutoff <- ifelse(data_input$time<T_cutoff,1,0)
-count(data_input, emerged_T_cutoff) #check if data is split 50/50
+count(data_input, emerged_T_cutoff) #check if data is split 50/50??
 
 # check trends by eye
 xyplot(emerged_T_cutoff ~ WL, data=data_input ,type=c("p","r"))
@@ -1189,18 +1409,19 @@ Anova(fit4k,type="III")
 Anova(fit4l,type="III") 
 plot(allEffects(fit4d), type='response') 
 plot(allEffects(fit4h), type='response') 
+plot(allEffects(fit4l), type='response') 
 
 # testing for linearity (on transformed scale) and testing for outliers/infl obs are not discussed in ABDA
 
 # test for collinearity: check with variance inflation factors
 # switch to glm, remove random factors, and remove interaction?
-fit4h2=glm(emerge_time50 ~ relMRWS+sex,family=binomial,data=data_input)
+fit4h2=glm(emerged_T_cutoff ~ relMRWS+sex,family=binomial,data=data_input)
 vif(fit4h2) # vif < 5, no collinearity
 
 # check for overdispersion
 # include random factor for every observation
 data_input$obs <- factor(1:nrow(data_input))
-fit4h3=glmer(emerge_time50 ~ relMRWS*sex+(1|IID)+(1|obs),family=binomial,data=data_input)
+fit4h3=glmer(emerged_T_cutoff ~ relMRWS*sex+(1|IID)+(1|obs),family=binomial,data=data_input)
 # singular error, so is not needed. no overdispersion
 
 
@@ -1318,10 +1539,10 @@ data_input <- subset(data_long_trial12345, time != 0)
 # ALTERNATIVE: make it 0.01s
 data_long_0.01 <- data_long_trial12345
 data_long_0.01$time[data_long$time <= 0] <- 0.01
-data_input <- data_long_0.01
-# ALTERNATIVE: consider the experiment only started when the beetle is submerged
+data_input <- data_long_0.01 # 945 observations
+# ALTERNATIVE 2: consider the experiment only started when the beetle is submerged
 # therefor we have to ignore all t=0 data, and shift the start of the experiment to t=30s
-data_input <- subset(data_long_trial12345, time >= 30)
+data_input <- subset(data_long_trial12345, time >= 30) #740 observations
 data_input$time <- data_input$time - 29.9
 
 # censoring column in data already added (see section 'load data')
@@ -1507,76 +1728,120 @@ fit7a <- coxph(Surv(time, censored, type="right") ~ relMRWS * sex + frailty(IID,
 fit7b <- coxph(Surv(time, censored, type="right") ~ relMRWS * sex + frailty(IID, dist="gaussian"), data=data_input)
 MuMIn::AICc(fit7a,fit7b)
 fit7b
-summary(fit7b)
+summary(fit7b) # sex still significant, interaction effect not anymore
 summary(contrast(emmeans(fit7b, ~sex), method="pairwise", adjust="tukey"), type="response")
+
+# plot female male curves. cannot plot frailty model, so use previous model for visualisation
+median_relMRWS <- median(data_input$relMRWS, na.rm = TRUE)
+newdata_F <- data.frame(relMRWS = median_relMRWS, sex = "F")
+newdata_M <- data.frame(relMRWS = median_relMRWS, sex = "M")
+# Fit survival curves
+sf_F <- survfit(fit7, newdata = newdata_F)
+sf_M <- survfit(fit7, newdata = newdata_M)
+
+# Fortify and label
+df_F <- fortify(sf_F)
+df_F$sex <- "Female"
+
+df_M <- fortify(sf_M)
+df_M$sex <- "Male"
+
+# Combine
+sf_df <- rbind(df_F, df_M)
+
+plot_MF_medianMRWS <- ggplot(sf_df, aes(x = time, y = surv, color = sex, fill = sex)) +
+  geom_line(size = 1.2) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2, color = NA) +
+  scale_color_manual(values = c("Female" = "orange", "Male" = "turquoise")) +
+  scale_fill_manual(values = c("Female" = "orange", "Male" = "turquoise")) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),
+                     limits = c(0.1, 1)) + 
+  labs(
+    title = paste("Survival curves at median relMRWS =", round(median_relMRWS, 2)),
+    x = "Time (s)",
+    y = "Submerged beetles (%)",
+    color = NULL,
+    fill = NULL
+  ) +
+  theme_minimal(base_size = 18) +
+  theme(legend.position = c(0.75, 0.85),plot.title = element_text(hjust = 0.5,size=16))
+
+ggsave(
+  plot_MF_medianMRWS, 
+  file="results/plot_survival_NonPara_MF.svg", width=5, height=4.5)
+
 
 
 # 'Manually' compare relMRWS below/above median
 
 median_relMRWS <- median(data_input$relMRWS)
-SW <- 0.35
-LW <- 0.60
+SW <- 0.25
+LW <- 0.50
 newdata <- expand.grid(
   relMRWS = c(SW, LW),
   sex = levels(data_input$sex)
 )
 
-newdata$group <- paste0(newdata$sex,ifelse(newdata$relMRWS < median_relMRWS, " - 0.35", " - 0.60"))
+newdata$group <- ifelse(newdata$relMRWS < median_relMRWS, "25% MRWS", "50% MRWS")
 
 #make separate survival curves per group
 sf_df_list <- map(1:nrow(newdata), function(i) {
   sf_i <- survfit(fit7, newdata = newdata[i, , drop = FALSE])
   df_i <- fortify(sf_i)
+  df_i$sex <- newdata$sex[i]  
   df_i$group <- newdata$group[i]
   df_i})
 #combine
 sf_df_all <- bind_rows(sf_df_list)
 
 
-data_plot <- subset(sf_df_all, group== 'F - 0.35' | group== 'F - 0.60')
+data_plot <- subset(sf_df_all, sex == "F")
 plot_F <- ggplot(data_plot, aes(x = time, y = surv, color = group, fill = group)) +
   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2, color = NA) +
   geom_line(size = 1.2) +
   scale_color_manual(values = c(
-    "F - 0.35" = "blue",  # orange
-    "F - 0.60" = "red"  # purple
+    "25% MRWS" = "blue",  
+    "50% MRWS" = "red"
   )) +
   scale_fill_manual(values = c(
-    "F - 0.35" = "blue",  # orange
-    "F - 0.60" = "red"  # purple
+    "25% MRWS" = "blue",
+    "50% MRWS" = "red"
   )) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),
-                     limits = c(0.15, 1)) + 
-  labs(x = "Time (s)",
+                     limits = c(0.1, 1)) + 
+  labs(title='Females',
+       x = "Time (s)",
        y = "Submerged beetles (%)",
        color = NULL,
        fill = NULL  
   ) +
   theme_minimal(base_size = 18) +
-  theme(legend.position = c(0.8, 0.75))
+  theme(legend.position = c(0.75, 0.85),plot.title = element_text(hjust = 0.5,size=18))
 plot_F
 
-data_plot <- subset(sf_df_all, group== 'M - 0.35' | group== 'M - 0.60')
+
+data_plot <- subset(sf_df_all, sex == "M")
 plot_M <- ggplot(data_plot, aes(x = time, y = surv, color = group, fill = group)) +
   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2, color = NA) +
   geom_line(size = 1.2) +
   scale_color_manual(values = c(
-    "M - 0.35" = "blue",  # green
-    "M - 0.60" = "red"   # pinkish magenta (but not typical blue)
-  )) +
+    "25% MRWS" = "blue",  
+    "50% MRWS" = "red"
+    )) +
   scale_fill_manual(values = c(
-    "M - 0.35" = "blue",  # green
-    "M - 0.60" = "red"   # pinkish magenta (but not typical blue)
-  )) +
+    "25% MRWS" = "blue",  
+    "50% MRWS" = "red"
+    )) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),
-                     limits = c(0.15, 1)) + 
-  labs(x = "Time (s)",
+                     limits = c(0.1, 1)) + 
+  labs(title='Males',
+       x = "Time (s)",
        y = "Submerged beetles (%)",
        color = NULL,
        fill = NULL
   ) +
   theme_minimal(base_size = 18) +
-  theme(legend.position = c(0.8, 0.75))
+  theme(legend.position = c(0.75, 0.85),plot.title = element_text(hjust = 0.5,size=18))
 plot_M
 
 plot_MF = grid.arrange(plot_F, 
@@ -1585,6 +1850,6 @@ plot_MF = grid.arrange(plot_F,
 
 ggsave(
   plot_MF, 
-  file="plot_survival_NonPara_relMRWS.svg", width=9, height=4.5)
+  file="results/plot_survival_NonPara_relMRWS.svg", width=9, height=4.5)
 
 
