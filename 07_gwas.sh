@@ -9,20 +9,20 @@
 
 module load BCFtools/1.9-foss-2018a
 
-cd /scratch/leuven/361/vsc36175/NP25_gwas_relMRWS_mm80_homoSW
+cd /scratch/leuven/361/vsc36175/NP25_gwas_relMRWS_mm80_homoLWhet
 
 # Remove the samples that don't have a wing measurement (not found in the phenotype.txt file)
 # Shouldn't be the case with NP25
 #bcftools view --threads 20 --samples-file ^remove_samples.txt gwas_imputed.vcf.gz -Oz -o gwas_imputed_clean.vcf.gz
 
 # Checks the number of samples
-bcftools query -l P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_homoSW.vcf.gz | wc -l
+bcftools query -l P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_homoLWhet.vcf.gz | wc -l
 
 # Prepare the GWAS with PLINK
 # Phenotype file should have the same FID and IID columns, and sample order should be same in vcf file 
 # ! interpretation phenotype 0,1,2: for case/control status (e.g., 1=control, 2=case, 0=missing)
 module load PLINK/1.9
-plink --vcf P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_homoSW.vcf.gz --pheno ../phenotype.txt --allow-no-sex --pheno-name relMRWS \
+plink --vcf P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_homoLWhet.vcf.gz --pheno ../phenotype.txt --allow-no-sex --pheno-name relMRWS \
 --double-id --make-bed --allow-extra-chr --out gwas_input
 
 # To confirm that the .bed file is properly formatted
