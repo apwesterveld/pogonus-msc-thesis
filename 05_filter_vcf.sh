@@ -34,8 +34,8 @@ bcftools norm -m -any -o P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned5k_mu
 
 # Filtering for certain individuals based on IID in samples.txt
 bcftools view \
-  -S karyotype_gwasWL_homoLWhet.txt \
-  -Oz -o P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_homoLWhet.vcf.gz \
+  -S ../karyotype_gwasWL_homozygotesLW.txt \
+  -Oz -o P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_homoLW.vcf.gz \
   ../P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit.vcf.gz
 
 # Index VCF file
