@@ -34,9 +34,9 @@ bcftools norm -m -any -o P_chalceus_NP25_BarSW_merged_filtered_mm80_thinned5k_mu
 
 # Filtering for certain individuals based on IID in samples.txt
 bcftools view \
-  -S karyotype_chr3_bb1.txt \
-  -Oz -o P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_chr3inv_AA_bb.vcf.gz \
-  P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_chr3inv_AA.vcf.gz --force-samples
+  -S ../karyotype_InvChr2AA_1SnpChr3BB.txt \
+  -Oz -o P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_chr2InvAA_chr3SnpBB.vcf.gz \
+  ../P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit.vcf.gz
 
 # Index VCF file
 tabix -p vcf P_chalceus_NP25_BarSW_merged_filtered_mm80_multiSplit_bb_AA.vcf.gz
