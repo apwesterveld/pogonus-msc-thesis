@@ -23,7 +23,7 @@ library(ggpubr)      # in combined plots, ex rremove("ylab")
 
 
 # Set working directory
-dir <- "/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/"
+dir <- "..."
 setwd(dir)
 
 # to compare levels (when using factors) to the grand mean and coefficients sum to zero
