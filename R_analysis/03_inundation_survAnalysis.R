@@ -20,7 +20,6 @@ library(ggthemes)    # Additional themes and scales for ggplot2
 library(grid)        # Low-level graphics system
 library(gridExtra)   # Arranging multiple grid-based plots
 library(survival)    # Survival analysis
-packageVersion("survival")
 library(flexsurv)    # Flexible parametric survival models
 library(scales)      # for percent_format()
 library(ggfortify)   # Plot survival analysis
@@ -29,7 +28,7 @@ library(readxl)
 
 
 # Set working directory
-dir <- "/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/"
+dir <- "..."
 setwd(dir)
 
 # to compare levels (when using factors) to the grand mean and coefficients sum to zero
