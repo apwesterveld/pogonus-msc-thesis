@@ -6,27 +6,27 @@ library(MuMIn)       # Model selection and model averaging
 library(nlme)
 library(effects)
 
-dir <- "/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef"
+dir <- "..."
 setwd(dir)
 
 ## data ####
-phenotypes <- fread("/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/NP25_phenotypes/phenotype.txt")
+phenotypes <- fread("NP25_phenotypes/phenotype.txt")
 phenotypes <- na.omit(phenotypes)
 # chr2
-genotype_chr2_aa1 <- fread("/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/NP25_PCA/NP25_PCA_chr2/karyotype_chr2_aa1.txt", header = FALSE)
-genotype_chr2_aA2 <- fread("/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/NP25_PCA/NP25_PCA_chr2/karyotype_chr2_aA2.txt", header = FALSE)
-genotype_chr2_AA3 <- fread("/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/NP25_PCA/NP25_PCA_chr2/karyotype_chr2_AA3.txt", header = FALSE)
+genotype_chr2_aa1 <- fread("NP25_PCA/NP25_PCA_chr2/karyotype_chr2_aa1.txt", header = FALSE)
+genotype_chr2_aA2 <- fread("NP25_PCA/NP25_PCA_chr2/karyotype_chr2_aA2.txt", header = FALSE)
+genotype_chr2_AA3 <- fread("NP25_PCA/NP25_PCA_chr2/karyotype_chr2_AA3.txt", header = FALSE)
 
 #choose region of chr3
 # CHR3:38310157-38330157
-genotype_chr3_bb1 <- fread("/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/NP25_PCA/NP25_PCA_chr3/karyotype_chr3_bb1.txt", header = FALSE)
-genotype_chr3_bB2 <- fread("/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/NP25_PCA/NP25_PCA_chr3/karyotype_chr3_bB2.txt", header = FALSE)
-genotype_chr3_BB3 <- fread("/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/NP25_PCA/NP25_PCA_chr3/karyotype_chr3_BB3.txt", header = FALSE)
+genotype_chr3_bb1 <- fread("NP25_PCA/NP25_PCA_chr3/karyotype_chr3_bb1.txt", header = FALSE)
+genotype_chr3_bB2 <- fread("NP25_PCA/NP25_PCA_chr3/karyotype_chr3_bB2.txt", header = FALSE)
+genotype_chr3_BB3 <- fread("NP25_PCA/NP25_PCA_chr3/karyotype_chr3_BB3.txt", header = FALSE)
 
 # chr3_2:34874684 to 34909607
-genotype_chr3_bb1 <- fread("/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/NP25_PCA/NP25_PCA_chr3_2/karyotype_chr3_bb1.txt", header = FALSE)
-genotype_chr3_bB2 <- fread("/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/NP25_PCA/NP25_PCA_chr3_2/karyotype_chr3_bB2.txt", header = FALSE)
-genotype_chr3_BB3 <- fread("/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef/NP25_PCA/NP25_PCA_chr3_2/karyotype_chr3_BB3.txt", header = FALSE)
+genotype_chr3_bb1 <- fread("NP25_PCA/NP25_PCA_chr3_2/karyotype_chr3_bb1.txt", header = FALSE)
+genotype_chr3_bB2 <- fread("NP25_PCA/NP25_PCA_chr3_2/karyotype_chr3_bB2.txt", header = FALSE)
+genotype_chr3_BB3 <- fread("NP25_PCA/NP25_PCA_chr3_2/karyotype_chr3_BB3.txt", header = FALSE)
 
 # chr3_2:1SNP
 genotype_chr3_bb1 <- fread("NP25_PCA/NP25_PCA_chr3_2/karyotype_1SNPchr3_bb1.txt", header = FALSE)
