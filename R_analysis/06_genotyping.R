@@ -13,7 +13,7 @@ library(htmlwidgets) # to save 3D plot
 
 
 
-dir <- "/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef"
+dir <- "..."
 setwd(dir)
 
 gemma_results_NP25 <- fread("NP25_gwas/NP25_gwas_relMRWS_mm80/gemma_results/gemma_lmm_results.assoc.txt")
