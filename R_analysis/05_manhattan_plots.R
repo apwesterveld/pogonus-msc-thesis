@@ -10,7 +10,7 @@ library(viridis)
 library(gridExtra)   # Arranging multiple grid-based plots
 library(cowplot) # can align multi plots with plot_grid()
 
-dir <- "/Users/Sander/Documents/Universiteit/KU Leuven/Masterproef"
+dir <- "..."
 setwd(dir)
 
 # Chromosome mapping ####
